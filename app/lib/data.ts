@@ -11,6 +11,9 @@ import { formatCurrency } from './utils'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
 
+// 从数据库中获取收入数据
+// 首先尝试执行SQL查询
+// 如果成功则返回查询结果；如果失败则捕获错误并抛出异常。
 export async function fetchRevenue() {
   try {
     // Artificially delay a response for demo purposes.
@@ -30,6 +33,8 @@ export async function fetchRevenue() {
   }
 }
 
+// 从 invoices 表中获取最新的 5 张发票，
+// 并与 customers 表进行连接，返回格式化后的发票数据
 export async function fetchLatestInvoices() {
   try {
     const data = await sql<LatestInvoiceRaw[]>`
@@ -50,6 +55,9 @@ export async function fetchLatestInvoices() {
   }
 }
 
+
+// 获取卡片数据（发票数量、客户数量、已支付和未支付的发票总额）
+// Promise.all 并行执行多个 SQL 查询，返回发票数量、客户数量、已支付和未支付的发票总额
 export async function fetchCardData() {
   try {
     // You can probably combine these into a single SQL query
@@ -153,7 +161,6 @@ export async function fetchInvoiceById(id: string) {
 
     const invoice = data.map((invoice) => ({
       ...invoice,
-      // Convert amount from cents to dollars
       amount: invoice.amount / 100,
     }))
 
