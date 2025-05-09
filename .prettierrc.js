@@ -7,5 +7,5 @@ module.exports = {
   bracketSpacing: true,
   jsxBracketSameLine: false,
   bracketSameLine: false,
-  proseWrap: "always"
+  proseWrap: 'always',
 }

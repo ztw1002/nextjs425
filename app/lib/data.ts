@@ -10,22 +10,15 @@ import {
 import { formatCurrency } from './utils'
 
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' })
+const invoiceCountPromise = sql`SELECT COUNT(*) FROM invoices`;
+const customerCountPromise = sql`SELECT COUNT(*) FROM customers`;
 
 // 从数据库中获取收入数据
 // 首先尝试执行SQL查询
 // 如果成功则返回查询结果；如果失败则捕获错误并抛出异常。
 export async function fetchRevenue() {
   try {
-    // Artificially delay a response for demo purposes.
-    // Don't do this in production :)
-
-    // console.log('Fetching revenue data...');
-    // await new Promise((resolve) => setTimeout(resolve, 3000));
-
     const data = await sql<Revenue[]>`SELECT * FROM revenue`
-
-    // console.log('Data fetch completed after 3 seconds.');
-
     return data
   } catch (error) {
     console.error('Database Error:', error)
@@ -70,6 +63,9 @@ export async function fetchCardData() {
          SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS "pending"
          FROM invoices`
 
+    // 使用 Promise.all 来并行执行多个 SQL 查询
+    // 这样可以提高性能，避免等待每个查询单独完成
+    // 这在处理多个独立的异步操作时非常有用
     const data = await Promise.all([
       invoiceCountPromise,
       customerCountPromise,
